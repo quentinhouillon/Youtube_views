@@ -16,36 +16,23 @@ class Views:
                 self.f = load(file)
 
             self.url = self.f[0]["url_entry"]
-            return {"text": "enter youtube/about(a propos) url"}
+            return {"text": "entrer l'url youtube de la chaine"}
 
         else:
             self.url = self.f[0]["url"]
             return {"text_save": self.url,
                     "color": "green"}
 
-    def _get_img(self):
-        url = requests.get(self.url)
-        soup = BeautifulSoup(url.text, "lxml")
-        soup = soup.find('div', id='appbar-content').find('img').get('src')
-        self.d_image = requests.get(soup)
-
-    def display_img(self):
-        self._get_img()
-
-        with open("img\\avatar.png", "wb") as file:
-            file.write(self.d_image.content)
-
-        im = Image.open("img\\avatar.png")
-        im.save("img\\tk_avatar.png")
-
-        avatar = ImageTk.PhotoImage(file="img\\avatar.png")
-
     def _search(self):
         try:
-            self.source = requests.get(self.url)
+            if "about" in self.url:
+                self.source = requests.get(self.url)
+
+            else:
+                self.source = requests.get(f"{self.url}about")
 
         except:
-            return {"text": "url not found",
+            return {"text": "url incorrecte",
                     "color": "red"}
 
     def display_search(self):
@@ -58,15 +45,14 @@ class Views:
 
             subscriber = data[0].text
             view = data[1].text
-            print("ca a marché")
 
         except:
-            return {"text":"url invalid",
+            return {"text":"url invalide",
                     "color": "red"}
 
-        return {"sub": f"subscribers \n\n{subscriber}",
-                "view": f"views \n\n{view}",
-                "update": "update"}
+        return {"sub": f"abonnées \n\n{subscriber}",
+                "view": f"vues \n\n{view}",
+                "update": "actualiser"}
 
     def save_url(self):
         self.f[0]["url"] = self.f[0]["url_entry"]
@@ -82,10 +68,11 @@ class Views:
             self.f[0]["url"] = ""
             self.f[0]["url_entry"] = ""
             dump(self.f, file, indent=4)
-    
+
     def btn(self):
         if len(self.f[0]["url"]) == 0:
-            return {"text": "find"}
+            return {"text": "trouvé"}
         
         else:
-            return {"text": "delete"}
+            return {"text": "supprimer"}
+
